@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Apply | {{ job.title }} | Career AI{% endblock %}
+
+{% block page_title %}Submit Application{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="card glass-card p-4 shadow-lg">
+            <div class="text-center mb-4 border-bottom pb-3">
+                <h3 class="fw-bold mb-1">Apply for {{ job.title }}</h3>
+                <p class="text-muted small">Submitting application to <strong>{{ job.company_name }}</strong></p>
+            </div>
+            
+            <form method="POST" action="{% url 'jobs:apply' pk=job.id %}">
+                {% csrf_token %}
+                
+                <!-- Resume check -->
+                <div class="mb-4 p-3 rounded bg-light border border-light-subtle d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold mb-1 small"><i class="bi bi-file-earmark-check-fill text-success"></i> Associated Resume</h6>
+                        {% if user.profile.resume_file %}
+                            <span class="text-muted small">{{ user.profile.resume_file.name }}</span>
+                        {% else %}
+                            <span class="text-danger small"><i class="bi bi-exclamation-triangle-fill"></i> No resume uploaded on your profile yet.</span>
+                        {% endif %}
+                    </div>
+                    {% if not user.profile.resume_file %}
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-warning">Upload Resume</a>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="cover_letter" class="form-label small fw-medium text-muted">Cover Letter (Optional)</label>
+                        <a href="{% url 'resume_analyzer:cover_letter_new' %}" class="small text-primary text-decoration-none" target="_blank"><i class="bi bi-robot"></i> Generate with AI</a>
+                    </div>
+                    <textarea name="cover_letter" id="cover_letter" rows="8" class="form-control" placeholder="Write a short statement introducing yourself and explaining why you fit this role..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'jobs:detail' pk=job.id %}" class="btn btn-outline-secondary w-50 py-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary-custom w-50 py-2" {% if not user.profile.resume_file %}disabled{% endif %}>Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

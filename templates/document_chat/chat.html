@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Document Chat | Career AI{% endblock %}
+
+{% block page_title %}AI Document Chat (RAG){% endblock %}
+
+{% block content %}
+<div class="row g-3 chat-container">
+    <!-- Left Panel - Document List & Upload -->
+    <div class="col-md-4 col-lg-3">
+        <div class="card glass-card p-3 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="fw-bold mb-3"><i class="bi bi-folder2-open me-2"></i> Documents</h6>
+                
+                <!-- Upload form -->
+                <form method="POST" action="{% url 'document_chat:upload' %}" enctype="multipart/form-data" class="mb-4">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input type="file" name="doc_file" id="doc_file" class="form-control" accept=".pdf,.docx,.txt" required>
+                        <button type="submit" class="btn btn-primary" title="Upload and index"><i class="bi bi-plus-lg"></i></button>
+                    </div>
+                    <div class="form-text small" style="font-size: 0.7rem;">PDF, DOCX, TXT (Max 5MB)</div>
+                </form>
+
+                <!-- Document List -->
+                <div class="list-group list-group-flush overflow-y-auto" style="max-height: calc(100vh - 350px);">
+                    {% for doc in documents %}
+                        <a href="{% url 'document_chat:session_detail' doc_id=doc.id %}" class="list-group-item list-group-item-action bg-transparent px-2 py-3 border-light-subtle d-flex align-items-center justify-content-between {% if active_doc.id == doc.id %}active bg-light-subtle rounded{% endif %}">
+                            <div class="text-truncate me-2 small">
+                                <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                                <span class="fw-semibold text-primary-emphasis">{{ doc.title }}</span>
+                            </div>
+                            <span class="text-muted small" style="font-size: 0.65rem;">{{ doc.uploaded_at|date:"M d" }}</span>
+                        </a>
+                    {% empty %}
+                        <p class="text-center text-muted py-4 small">No documents uploaded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="small p-2 bg-light-subtle border border-light-subtle rounded">
+                <i class="bi bi-info-circle text-info me-1"></i> <span class="text-muted" style="font-size: 0.75rem;">AI responses are grounded strictly in your selected document text.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel - Chat Panel -->
+    <div class="col-md-8 col-lg-9">
+        <div class="card glass-card p-3 h-100 d-flex flex-column justify-content-between">
+            {% if active_doc %}
+                <!-- Chat Header -->
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                    <div>
+                        <h6 class="fw-bold m-0"><i class="bi bi-chat-left-dots-fill text-success me-2"></i> Chat: {{ active_doc.title }}</h6>
+                        <span class="text-muted small" style="font-size: 0.75rem;">Indexed pages: {{ active_doc.extracted_text|length|default:1000|divisibleby:1500|yesno:"Multiple,1" }} page(s)</span>
+                    </div>
+                    <a href="{{ active_doc.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-eye"></i> View Source Document</a>
+                </div>
+
+                <!-- Chat message history -->
+                <div class="chat-messages d-flex flex-column p-2" id="chatMessages">
+                    <!-- Initial AI greeting -->
+                    <div class="chat-bubble ai animate-fade-in">
+                        Hello! I have analyzed and indexed your document <strong>{{ active_doc.title }}</strong>. Ask me anything about its contents, and I'll answer using only the source texts.
+                    </div>
+
+                    {% for msg in chat_messages %}
+                        <div class="chat-bubble {% if msg.sender == 'user' %}user{% else %}ai{% endif %} animate-fade-in">
+                            {{ msg.message }}
+                            
+                            <!-- Source References for AI -->
+                            {% if msg.sender == 'ai' and msg.source_info %}
+                                <div class="mt-2 pt-2 border-top border-secondary-subtle" style="font-size: 0.75rem;">
+                                    <span class="fw-bold text-success-emphasis"><i class="bi bi-journal-text"></i> Source References:</span>
+                                    <ul class="list-unstyled ps-0 mt-1 mb-0">
+                                        {% for source in msg.source_info %}
+                                            <li class="mb-1 p-1 bg-light-subtle rounded border border-light-subtle">
+                                                <strong>Page {{ source.page_num }}:</strong> "{{ source.text|slice:":150" }}..."
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div id="scrollAnchor"></div>
+                </div>
+
+                <!-- Chat Input form -->
+                <form method="POST" action="{% url 'document_chat:session_detail' doc_id=active_doc.id %}" id="chatForm" class="border-top pt-3 mt-2">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" name="message" id="messageInput" class="form-control py-2 border-end-0" placeholder="Ask questions about this document..." required autocomplete="off">
+                        <button type="submit" class="btn btn-primary px-4" id="chatSendBtn"><i class="bi bi-send-fill"></i></button>
+                    </div>
+                </form>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center my-auto py-5 text-muted small animate-fade-in">
+                    <i class="bi bi-chat-left-quote fs-1 d-block mb-3 text-secondary"></i>
+                    <h5 class="fw-bold text-primary-emphasis mb-2">No Active Document selected</h5>
+                    <p class="mb-4 text-muted col-md-8 mx-auto">Upload a document or choose an existing PDF/DOCX file from the left sidebar to activate the AI contextual assistant.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Auto scroll to bottom of chat
+        const chatWindow = document.getElementById("chatMessages");
+        if (chatWindow) {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Handle loader on submit
+        const form = document.getElementById("chatForm");
+        if (form) {
+            form.addEventListener("submit", function() {
+                const btn = document.getElementById("chatSendBtn");
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+            });
+        }
+    });
+</script>
+{% endblock %}

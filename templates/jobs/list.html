@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Jobs | Career AI{% endblock %}
+
+{% block page_title %}Jobs Opportunities Board{% endblock %}
+
+{% block content %}
+<!-- Search and Filter Bar -->
+<div class="card glass-card p-3 mb-4 shadow-sm">
+    <form method="GET" action="{% url 'jobs:list' %}" class="row g-2">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" class="form-control border-start-0" placeholder="Title, company name, skills..." value="{{ query }}">
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-geo-alt text-muted"></i></span>
+                <input type="text" name="location" class="form-control border-start-0" placeholder="Location, Remote..." value="{{ location }}">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary-custom w-100 py-2"><i class="bi bi-funnel-fill"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Header controls -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold m-0 text-primary-emphasis">Job Openings Available</h5>
+    <div class="d-flex gap-2">
+        <a href="{% url 'jobs:tracker' %}" class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-check-circle me-1"></i> Application Tracker</a>
+        <a href="{% url 'jobs:post' %}" class="btn btn-sm btn-primary-custom px-3"><i class="bi bi-plus-lg"></i> Post a Job</a>
+    </div>
+</div>
+
+<!-- Jobs List -->
+<div class="row g-4">
+    {% for job in jobs %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card glass-card h-100 p-3 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Match Score Badge -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-light text-muted border border-secondary-subtle small">{{ job.location }}</span>
+                        <span class="badge {% if job.match_score >= 80 %}bg-success-subtle text-success border-success{% elif job.match_score >= 50 %}bg-warning-subtle text-warning border-warning{% else %}bg-secondary-subtle text-secondary border-secondary{% endif %} border px-2 py-1">
+                            {{ job.match_score }}% Match
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold text-primary-emphasis mb-1 text-truncate" title="{{ job.title }}">{{ job.title }}</h5>
+                    <p class="text-muted small fw-medium mb-2">{{ job.company_name }}</p>
+                    
+                    <p class="small text-secondary mb-3 text-truncate-3" style="min-height: 54px;">{{ job.description }}</p>
+                    
+                    <!-- Requirements badge list -->
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                        {% for req in job.get_requirements_list|slice:":3" %}
+                            <span class="badge bg-light-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 0.65rem;">{{ req }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-success small">{{ job.salary|default:"Competitive" }}</span>
+                    <div class="d-flex gap-2">
+                        <!-- Bookmark button -->
+                        <a href="{% url 'jobs:bookmark' pk=job.id %}" class="btn btn-sm btn-outline-secondary px-2" title="Bookmark job">
+                            <i class="bi {% if job.is_bookmarked %}bi-bookmark-fill text-warning{% else %}bi-bookmark{% endif %}"></i>
+                        </a>
+                        <a href="{% url 'jobs:detail' pk=job.id %}" class="btn btn-sm btn-primary px-3">Apply</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-center py-5 text-muted small">
+            <i class="bi bi-briefcase fs-1 d-block mb-3 text-secondary"></i>
+            <p class="mb-0">No job openings found matching your filters.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

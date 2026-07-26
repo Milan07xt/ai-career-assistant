@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resume Analysis History | Career AI{% endblock %}
+
+{% block page_title %}Audit History{% endblock %}
+
+{% block content %}
+<div class="card glass-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h5 class="fw-bold m-0">Your Analyzed Resumes</h5>
+        <a href="{% url 'resume_analyzer:upload' %}" class="btn btn-sm btn-primary-custom"><i class="bi bi-cloud-arrow-up-fill me-1"></i> Analyze New</a>
+    </div>
+
+    {% if resumes %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle bg-transparent">
+                <thead>
+                    <tr class="text-muted small">
+                        <th>Upload Date</th>
+                        <th>Filename</th>
+                        <th class="text-center">ATS Score</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    {% for r in resumes %}
+                        <tr class="border-light-subtle">
+                            <td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+                            <td class="fw-medium">
+                                <a href="{{ r.file.url }}" target="_blank" class="text-decoration-none text-primary-emphasis">
+                                    <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>{{ r.file.name|slice:"17:" }}
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge {% if r.ats_score >= 80 %}bg-success{% elif r.ats_score >= 60 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6 px-3 py-1">
+                                    {{ r.ats_score }} / 100
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success-subtle text-success border border-success">Audited</span>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'resume_analyzer:detail' pk=r.id %}" class="btn btn-sm btn-outline-primary px-3">View Report</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted small">
+            <i class="bi bi-file-earmark-bar-graph fs-1 d-block mb-3 text-secondary"></i>
+            <p class="mb-3">You haven't uploaded or analyzed any resumes yet.</p>
+            <a href="{% url 'resume_analyzer:upload' %}" class="btn btn-primary-custom btn-sm">Analyze Resume Now</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

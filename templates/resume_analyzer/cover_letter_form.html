@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate Cover Letter | Career AI{% endblock %}
+
+{% block page_title %}AI Cover Letter Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="card glass-card p-4 shadow-lg">
+            <div class="text-center mb-4">
+                <i class="bi bi-envelope-paper-fill fs-1 text-primary mb-2"></i>
+                <h3 class="fw-bold">Create a Custom Cover Letter</h3>
+                <p class="text-muted small">Generates a professional cover letter custom-tailored to your resume and target job role</p>
+            </div>
+            
+            <form method="POST" action="{% url 'resume_analyzer:cover_letter_new' %}" id="clForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="company_name" class="form-label small fw-medium">Company Name</label>
+                    <input type="text" name="company_name" id="company_name" class="form-control" placeholder="e.g. Google, Stripe, Tech Startup" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="job_description" class="form-label small fw-medium">Job Description / Requirements</label>
+                    <textarea name="job_description" id="job_description" rows="8" class="form-control" placeholder="Paste the job description or role requirements here to tailor the letter's keywords..." required></textarea>
+                </div>
+
+                <!-- Loading Spinner (Shown on Submit) -->
+                <div class="d-none text-center my-4" id="clLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted small">Generating tailored cover letter. Writing details...</p>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-custom w-100 py-2 fs-5" id="submitBtn">Generate Cover Letter</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('clForm').addEventListener('submit', function() {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('clLoading').classList.remove('d-none');
+    });
+</script>
+{% endblock %}

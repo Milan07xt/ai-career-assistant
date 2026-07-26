@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Resume | Career AI{% endblock %}
+
+{% block page_title %}Resume ATS Analyzer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="card glass-card p-4 shadow-lg">
+            <div class="text-center mb-4">
+                <i class="bi bi-cloud-arrow-up-fill fs-1 text-primary mb-2"></i>
+                <h3 class="fw-bold">Upload Your Resume</h3>
+                <p class="text-muted small">Supports PDF, DOCX, or TXT formats (Max size: 5MB)</p>
+            </div>
+            
+            <form method="POST" action="{% url 'resume_analyzer:upload' %}" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+                <div class="upload-zone text-center p-5 mb-4 position-relative" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <i class="bi bi-file-earmark-arrow-up fs-2 text-muted mb-2 d-block"></i>
+                    <span class="d-block fw-semibold" id="dropZoneText">Drag & Drop your file here, or click to browse</span>
+                    <input type="file" name="resume_file" id="fileInput" class="position-absolute opacity-0 top-0 start-0 w-100 h-100" style="cursor: pointer;" accept=".pdf,.docx,.txt" required onchange="handleFileSelect(this)">
+                </div>
+
+                <div class="d-none mb-3" id="fileDetails">
+                    <div class="alert alert-info d-flex justify-content-between align-items-center mb-0 small">
+                        <span><i class="bi bi-file-earmark-check-fill text-success me-2"></i> Selected: <strong id="fileName">file.pdf</strong> (<span id="fileSize">230 KB</span>)</span>
+                        <button type="button" class="btn-close" onclick="resetFile()"></button>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner (Shown on Submit) -->
+                <div class="d-none text-center my-4" id="uploadLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted small">Extracting resume text and running ATS intelligence audit. Please wait...</p>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-custom w-100 py-2 fs-5" id="submitBtn">Start AI Analysis</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleFileSelect(input) {
+        if(input.files && input.files[0]) {
+            const file = input.files[0];
+            document.getElementById('fileName').innerText = file.name;
+            document.getElementById('fileSize').innerText = Math.round(file.size / 1024) + ' KB';
+            document.getElementById('fileDetails').classList.remove('d-none');
+            document.getElementById('dropZone').style.display = 'none';
+        }
+    }
+    
+    function resetFile() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('fileDetails').classList.add('d-none');
+        document.getElementById('dropZone').style.display = 'block';
+    }
+    
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('uploadLoading').classList.remove('d-none');
+    });
+</script>
+{% endblock %}

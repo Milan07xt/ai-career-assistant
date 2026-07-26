@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up | AI Career Assistant{% endblock %}
+
+{% block page_title %}Get Started{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: calc(100vh - 150px);">
+    <div class="col-md-7 col-lg-6 col-xl-5">
+        <div class="card glass-card p-4 shadow-lg border-light-subtle">
+            <div class="text-center mb-4">
+                <i class="bi bi-person-plus-fill fs-1 text-success mb-2"></i>
+                <h3 class="fw-bold">Create Account</h3>
+                <p class="text-muted small">Unlock full AI access to resume analysis & interviews</p>
+            </div>
+            
+            <form method="POST" action="{% url 'accounts:register' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name" class="form-label small fw-medium">First Name</label>
+                        <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Milan" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name" class="form-label small fw-medium">Last Name</label>
+                        <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Singh" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label small fw-medium">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="milansingh" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label small fw-medium">Email Address</label>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="milan@example.com" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label small fw-medium">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-custom w-100 py-2 mb-3">Create Account</button>
+            </form>
+            
+            <div class="text-center mt-2">
+                <span class="small text-muted">Already have an account? <a href="{% url 'accounts:login' %}" class="text-primary fw-medium text-decoration-none">Sign In</a></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

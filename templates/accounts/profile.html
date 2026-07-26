@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile | AI Career Assistant{% endblock %}
+
+{% block page_title %}Profile Settings{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column - Summary Card -->
+    <div class="col-lg-4">
+        <div class="card glass-card p-4 text-center">
+            <div class="position-relative d-inline-block mx-auto mb-3">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="Profile Avatar" class="rounded-circle border border-primary border-3" style="width: 120px; height: 120px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-primary text-white rounded-circle border border-primary border-3 d-flex align-items-center justify-content-center mx-auto" style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold;">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <h4 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
+            <p class="text-muted small mb-3">@{{ user.username }}</p>
+            
+            <!-- Email Verification Status Badge -->
+            <div class="mb-4">
+                {% if profile.is_email_verified %}
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2"><i class="bi bi-patch-check-fill me-1"></i> Email Verified</span>
+                {% else %}
+                    <div class="d-grid gap-2">
+                        <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Email Unverified</span>
+                        <a href="{% url 'accounts:verify_email' %}" class="btn btn-sm btn-outline-warning">Verify Email Now</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Profile Completion Meter -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-1 small fw-medium">
+                    <span>Profile Completeness</span>
+                    <span>{{ profile.profile_completion_score }}%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ profile.profile_completion_score }}%;" aria-valuenow="{{ profile.profile_completion_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            <hr>
+            
+            <div class="d-grid gap-2">
+                <a href="{% url 'accounts:change_password' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-key-fill me-2"></i> Change Password</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Edit Form -->
+    <div class="col-lg-8">
+        <div class="card glass-card p-4">
+            <h5 class="fw-bold mb-4 border-bottom pb-2">Edit Professional Profile</h5>
+            
+            <form method="POST" action="{% url 'accounts:profile' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Personal Info Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="first_name" class="form-label small fw-medium">First Name</label>
+                        <input type="text" name="first_name" id="first_name" class="form-control" value="{{ user.first_name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="last_name" class="form-label small fw-medium">Last Name</label>
+                        <input type="text" name="last_name" id="last_name" class="form-control" value="{{ user.last_name }}" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label small fw-medium">Email Address</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+
+                <!-- Professional Details -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="preferred_role" class="form-label small fw-medium">Preferred Job Title / Role</label>
+                        <input type="text" name="preferred_role" id="preferred_role" class="form-control" value="{{ profile.preferred_role|default:'' }}" placeholder="e.g. Python Django Developer">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="location" class="form-label small fw-medium">Location</label>
+                        <input type="text" name="location" id="location" class="form-control" value="{{ profile.location|default:'' }}" placeholder="e.g. San Francisco, CA">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="salary_expectation" class="form-label small fw-medium">Salary Expectation ($ / year)</label>
+                        <input type="number" name="salary_expectation" id="salary_expectation" class="form-control" value="{{ profile.salary_expectation|default:''|floatformat:0 }}" placeholder="e.g. 95000">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="avatar" class="form-label small fw-medium">Profile Picture</label>
+                        <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="skills" class="form-label small fw-medium">Skills (comma-separated)</label>
+                    <input type="text" name="skills" id="skills" class="form-control" value="{{ profile.skills|default:'' }}" placeholder="e.g. Python, Django, PostgreSQL, Git, Docker">
+                    <div class="form-text small">Separate skills with commas to help the AI calculate job match scores accurately.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="bio" class="form-label small fw-medium">Biography / Professional Summary</label>
+                    <textarea name="bio" id="bio" rows="4" class="form-control" placeholder="Write a summary about your achievements, tech stack and work history...">{{ profile.bio|default:'' }}</textarea>
+                </div>
+
+                <!-- Resume upload status -->
+                <div class="mb-4 p-3 rounded bg-light border border-light-subtle">
+                    <label for="resume_file" class="form-label small fw-medium d-block">Default Resume File</label>
+                    <input type="file" name="resume_file" id="resume_file" class="form-control mb-2" accept=".pdf,.docx,.txt">
+                    {% if profile.resume_file %}
+                        <div class="d-flex align-items-center justify-content-between mt-2 small text-muted">
+                            <span><i class="bi bi-file-earmark-check-fill text-success me-1"></i> Current file: <a href="{{ profile.resume_file.url }}" target="_blank">{{ profile.resume_file.name }}</a></span>
+                        </div>
+                    {% else %}
+                        <span class="text-warning small"><i class="bi bi-exclamation-circle-fill me-1"></i> No resume uploaded. Go to Resume Analyzer to upload and calculate ATS scores.</span>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 py-2">Save Profile Updates</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

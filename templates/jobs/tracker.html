@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Tracker | Career AI{% endblock %}
+
+{% block page_title %}Job Application Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-100">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills mb-4" id="trackerTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active px-4 py-2 fw-medium" id="applied-tab" data-bs-toggle="tab" data-bs-target="#applied" type="button" role="tab" aria-controls="applied" aria-selected="true">
+                    <i class="bi bi-send-check me-2"></i> Active Applications ({{ applications.count }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link px-4 py-2 fw-medium" id="bookmarked-tab" data-bs-toggle="tab" data-bs-target="#bookmarked" type="button" role="tab" aria-controls="bookmarked" aria-selected="false">
+                    <i class="bi bi-bookmark-star me-2"></i> Bookmarks ({{ bookmarks.count }})
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="trackerTabContent">
+            <!-- Active Applications Tab -->
+            <div class="tab-pane fade show active" id="applied" role="tabpanel" aria-labelledby="applied-tab">
+                <div class="card glass-card p-4">
+                    {% if applications %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle bg-transparent mb-0">
+                                <thead>
+                                    <tr class="text-muted small border-bottom">
+                                        <th>Role / Company</th>
+                                        <th>Applied Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="small">
+                                    {% for app in applications %}
+                                        <tr class="border-light-subtle">
+                                            <td>
+                                                <div class="fw-bold text-primary-emphasis">{{ app.job.title }}</div>
+                                                <div class="text-muted" style="font-size: 0.8rem;">{{ app.job.company_name }}</div>
+                                            </td>
+                                            <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                {% if app.status == "Applied" %}
+                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2">Applied</span>
+                                                {% elif app.status == "Reviewing" %}
+                                                    <span class="badge bg-info-subtle text-info border border-info px-3 py-2">Reviewing</span>
+                                                {% elif app.status == "Interview Scheduled" %}
+                                                    <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2"><i class="bi bi-calendar-check-fill me-1"></i> Interview Scheduled</span>
+                                                {% elif app.status == "Accepted" %}
+                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2">Accepted</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">Rejected</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="{% url 'jobs:detail' pk=app.job.id %}" class="btn btn-sm btn-outline-secondary">Job Details</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted small">
+                            <i class="bi bi-clipboard-x fs-1 d-block mb-3 text-secondary"></i>
+                            <p class="mb-3">No active job applications found.</p>
+                            <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-primary-custom">Browse and Apply</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bookmarked Jobs Tab -->
+            <div class="tab-pane fade" id="bookmarked" role="tabpanel" aria-labelledby="bookmarked-tab">
+                <div class="card glass-card p-4">
+                    {% if bookmarks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle bg-transparent mb-0">
+                                <thead>
+                                    <tr class="text-muted small border-bottom">
+                                        <th>Role / Company</th>
+                                        <th>Location</th>
+                                        <th>Salary</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="small">
+                                    {% for bm in bookmarks %}
+                                        <tr class="border-light-subtle">
+                                            <td>
+                                                <div class="fw-bold text-primary-emphasis">{{ bm.job.title }}</div>
+                                                <div class="text-muted" style="font-size: 0.8rem;">{{ bm.job.company_name }}</div>
+                                            </td>
+                                            <td>{{ bm.job.location }}</td>
+                                            <td class="fw-bold text-success">{{ bm.job.salary|default:"Competitive" }}</td>
+                                            <td class="text-end">
+                                                <a href="{% url 'jobs:bookmark' pk=bm.job.id %}" class="btn btn-sm btn-outline-danger me-2" title="Remove Bookmark"><i class="bi bi-trash3-fill"></i></a>
+                                                <a href="{% url 'jobs:detail' pk=bm.job.id %}" class="btn btn-sm btn-primary">Apply</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted small">
+                            <i class="bi bi-bookmark-x fs-1 d-block mb-3 text-secondary"></i>
+                            <p class="mb-3">You haven't bookmarked any jobs yet.</p>
+                            <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-outline-secondary">Browse Jobs</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

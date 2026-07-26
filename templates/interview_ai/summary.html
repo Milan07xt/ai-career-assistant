@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Interview Evaluation | Career AI{% endblock %}
+
+{% block page_title %}Interview Assessment Card{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Left Column - Overall Summary Gauge -->
+    <div class="col-lg-4">
+        <div class="card glass-card p-4 text-center h-100 shadow-sm">
+            <h5 class="fw-bold mb-4">Mock Interview Score</h5>
+            
+            <!-- Circular overall score representation (out of 10) -->
+            <div class="ats-score-badge mb-4">
+                <svg width="150" height="150" class="progress-ring">
+                    <circle class="progress-ring__circle" stroke="var(--border-color)" stroke-width="12" fill="transparent" r="60" cx="75" cy="75"/>
+                    <circle class="progress-ring__circle" stroke="{% if session.overall_score >= 8 %}#10b981{% elif session.overall_score >= 5 %}#f59e0b{% else %}#ef4444{% endif %}" stroke-width="12" stroke-dasharray="377" stroke-dashoffset="{{ score_dashoffset }}" fill="transparent" r="60" cx="75" cy="75"/>
+                </svg>
+                <div class="ats-score-text fs-1 fw-bold">{{ session.overall_score }} <span class="fs-6 text-muted">/ 10</span></div>
+            </div>
+
+            <div class="mb-4">
+                {% if session.overall_score >= 8 %}
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6"><i class="bi bi-award-fill"></i> Job Ready Performance</span>
+                {% elif session.overall_score >= 5 %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 fs-6"><i class="bi bi-arrow-repeat"></i> Keep Practicing</span>
+                {% else %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 fs-6"><i class="bi bi-exclamation-triangle-fill"></i> Needs Focus</span>
+                {% endif %}
+            </div>
+
+            <p class="small text-muted mb-4">Role assessed: <strong class="text-primary">{{ session.role }}</strong></p>
+            
+            <hr class="my-4">
+            <div class="d-grid gap-2">
+                <a href="{% url 'interview_ai:start' %}" class="btn btn-primary-custom btn-sm"><i class="bi bi-mic"></i> Start New Interview</a>
+                <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary btn-sm">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Q&A Feedback list -->
+    <div class="col-lg-8">
+        <h5 class="fw-bold mb-4">Detailed Question Evaluations</h5>
+        
+        {% for q in session.questions.all %}
+            <div class="card glass-card p-4 mb-4">
+                <!-- Question text and score badge -->
+                <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                    <div>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary mb-1 small">{{ q.question_type }}</span>
+                        <h5 class="fw-bold m-0 leading-normal">{{ q.question_text }}</h5>
+                    </div>
+                    <span class="badge {% if q.score >= 8 %}bg-success{% elif q.score >= 5 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6 px-3 py-2 ms-3">
+                        {{ q.score }} / 10
+                    </span>
+                </div>
+
+                <!-- User Answer -->
+                <div class="mb-3">
+                    <h6 class="fw-bold text-muted small"><i class="bi bi-person-fill"></i> Your Answer:</h6>
+                    <blockquote class="small bg-light p-3 rounded text-secondary font-monospace" style="white-space: pre-line;">{{ q.user_answer }}</blockquote>
+                </div>
+
+                <!-- AI Evaluation Feedback -->
+                <div class="mb-3">
+                    <h6 class="fw-bold text-success-emphasis small"><i class="bi bi-robot"></i> AI Feedback & Suggestions:</h6>
+                    <p class="small text-muted leading-relaxed">{{ q.feedback }}</p>
+                </div>
+
+                <!-- Model Suggested Answer -->
+                {% if q.suggested_answer %}
+                    <div class="mb-0">
+                        <h6 class="fw-bold text-info-emphasis small"><i class="bi bi-check-circle-fill text-info"></i> Suggested Answer Guideline:</h6>
+                        <p class="small text-muted leading-relaxed font-monospace mb-0">{{ q.suggested_answer }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

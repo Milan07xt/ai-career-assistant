@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ job.title }} | Career AI{% endblock %}
+
+{% block page_title %}Job Detail View{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column - Description -->
+    <div class="col-lg-8">
+        <div class="card glass-card p-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-start mb-4 border-bottom pb-2">
+                <div>
+                    <h3 class="fw-bold mb-1 text-primary-emphasis">{{ job.title }}</h3>
+                    <p class="text-muted mb-0"><strong class="text-primary">{{ job.company_name }}</strong> &bull; {{ job.location }}</p>
+                </div>
+                
+                <span class="badge {% if match_score >= 80 %}bg-success-subtle text-success border-success{% elif match_score >= 50 %}bg-warning-subtle text-warning border-warning{% else %}bg-secondary-subtle text-secondary border-secondary{% endif %} border px-3 py-2 fs-6">
+                    {{ match_score }}% Match Score
+                </span>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="fw-bold mb-2">Job Description</h5>
+                <div class="text-muted small leading-relaxed" style="white-space: pre-line;">{{ job.description }}</div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="fw-bold mb-2">Skills & Requirements</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for req in job.get_requirements_list %}
+                        <span class="badge bg-light text-dark border border-secondary-subtle px-3 py-2 small">{{ req }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Jobs</a>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'jobs:bookmark' pk=job.id %}" class="btn btn-sm btn-outline-secondary px-3">
+                        <i class="bi {% if is_bookmarked %}bi-bookmark-fill text-warning{% else %}bi-bookmark{% endif %}"></i> Bookmark
+                    </a>
+                    {% if has_applied %}
+                        <button class="btn btn-sm btn-success px-4" disabled><i class="bi bi-check-circle-fill"></i> Applied</button>
+                    {% else %}
+                        <a href="{% url 'jobs:apply' pk=job.id %}" class="btn btn-sm btn-primary px-4">Apply for Job</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Sidebar Stats -->
+    <div class="col-lg-4">
+        <div class="card glass-card p-4 mb-4">
+            <h5 class="fw-bold mb-3">Job Summary</h5>
+            <ul class="list-unstyled small text-muted mb-0">
+                <li class="mb-3 d-flex justify-content-between">
+                    <span><i class="bi bi-geo-alt-fill me-2"></i> Location:</span>
+                    <strong class="text-primary-emphasis">{{ job.location }}</strong>
+                </li>
+                <li class="mb-3 d-flex justify-content-between">
+                    <span><i class="bi bi-cash-stack me-2"></i> Salary:</span>
+                    <strong class="text-success">{{ job.salary|default:"Competitive" }}</strong>
+                </li>
+                <li class="mb-3 d-flex justify-content-between">
+                    <span><i class="bi bi-calendar-event me-2"></i> Posted date:</span>
+                    <strong>{{ job.created_at|date:"M d, Y" }}</strong>
+                </li>
+                <li class="mb-0 d-flex justify-content-between">
+                    <span><i class="bi bi-person-fill-check me-2"></i> Poster Profile:</span>
+                    <strong>{{ job.posted_by.first_name|default:job.posted_by.username }}</strong>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Quick AI match advice -->
+        <div class="card glass-card p-4 gradient-card-2 border-0 text-white shadow">
+            <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill"></i> Compatibility Check</h5>
+            {% if match_score >= 70 %}
+                <p class="small mb-0">Your skills match the job description well! You are ready to apply. Emphasize your technical projects in the application details.</p>
+            {% else %}
+                <p class="small mb-0">Some key skills for this role are currently missing from your profile (e.g. {{ job.get_requirements_list.0 }}). Consider practicing a mock interview or updating your skills list first.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

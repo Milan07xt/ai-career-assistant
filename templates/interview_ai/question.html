@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Question {{ index }} of {{ total }} | Career AI{% endblock %}
+
+{% block page_title %}Mock Interview Session{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Progress Indicator -->
+        <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+            <span class="small text-muted fw-semibold">Role: {{ session.role }}</span>
+            <span class="badge bg-indigo-500 text-white" style="background-color: var(--accent-color);">Question {{ index }} of {{ total }}</span>
+        </div>
+        
+        <div class="progress mb-4" style="height: 6px;">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio index total 100 %}%"></div>
+        </div>
+
+        <div class="card glass-card p-4 shadow-lg mb-4">
+            <!-- Question Card -->
+            <div class="mb-4">
+                <div class="mb-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary small">{{ question.question_type }}</span>
+                </div>
+                <h4 class="fw-bold leading-normal">{{ question.question_text }}</h4>
+            </div>
+
+            <!-- Answer Submission Form -->
+            <form method="POST" action="{% url 'interview_ai:question' session_id=session.id question_idx=index %}" id="answerForm">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="answer" class="form-label small fw-medium text-muted">Your Answer:</label>
+                    <textarea name="answer" id="answer" rows="8" class="form-control" placeholder="Write your technical or behavioral answer in detail here. You can outline your concepts, logic, syntax, or STAR approach response..." required></textarea>
+                </div>
+
+                <!-- Loading Spinner (Shown on Submit) -->
+                <div class="d-none text-center my-4" id="submitLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted small">AI is analyzing your response, matching keywords, and scoring... Please wait...</p>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small text-muted italic">Submit answer to proceed to the next question</span>
+                    <button type="submit" class="btn btn-primary-custom px-4" id="submitBtn">
+                        {% if index == total %}Finish Interview{% else %}Next Question <i class="bi bi-chevron-right"></i>{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('answerForm').addEventListener('submit', function() {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitLoading').classList.remove('d-none');
+    });
+</script>
+{% endblock %}

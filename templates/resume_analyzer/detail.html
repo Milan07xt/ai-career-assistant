@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resume Analysis Results | Career AI{% endblock %}
+
+{% block page_title %}ATS Intelligence Audit{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Left Column - ATS Score Circular Badge & Core Stats -->
+    <div class="col-lg-4">
+        <div class="card glass-card p-4 text-center h-100">
+            <h5 class="fw-bold mb-4">ATS Overall Score</h5>
+            
+            <div class="ats-score-badge mb-4">
+                <svg width="150" height="150" class="progress-ring">
+                    <circle class="progress-ring__circle" stroke="var(--border-color)" stroke-width="12" fill="transparent" r="60" cx="75" cy="75"/>
+                    <circle class="progress-ring__circle" stroke="{% if ats_score >= 80 %}#10b981{% elif ats_score >= 50 %}#f59e0b{% else %}#ef4444{% endif %}" stroke-width="12" stroke-dasharray="377" stroke-dashoffset="{{ ats_dashoffset }}" fill="transparent" r="60" cx="75" cy="75"/>
+                </svg>
+                <div class="ats-score-text fs-1">{{ ats_score }}</div>
+            </div>
+            
+            <div class="mb-4">
+                {% if ats_score >= 80 %}
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6">Excellent ATS Score</span>
+                {% elif ats_score >= 60 %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 fs-6">Needs Improvement</span>
+                {% else %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 fs-6">Critical Review Needed</span>
+                {% endif %}
+            </div>
+
+            <!-- Breakdown parameters -->
+            <div class="text-start mt-3">
+                <h6 class="fw-bold mb-3">Auditing Parameters:</h6>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Keyword Match</span>
+                        <span>{{ keyword_match }}%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ keyword_match }}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Grammar & Tone</span>
+                        <span>{{ grammar_score }}%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ grammar_score }}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Formatting Score</span>
+                        <span>{{ formatting_score }}%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ formatting_score }}%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <div class="d-grid gap-2">
+                <a href="{% url 'resume_analyzer:upload' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left"></i> Analyze Another</a>
+                <a href="{% url 'resume_analyzer:history' %}" class="btn btn-outline-secondary btn-sm">View Analysis History</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Detailed Analysis Sections -->
+    <div class="col-lg-8">
+        <!-- AI Professional Summary -->
+        <div class="card glass-card p-4 mb-4">
+            <h5 class="fw-bold mb-3">AI Professional Assessment Summary</h5>
+            <p class="text-muted small leading-relaxed">{{ analysis.summary }}</p>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Missing Skills & Technologies -->
+            <div class="col-md-6">
+                <div class="card glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-tags-fill"></i> Missing Skills</h5>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        {% for s in analysis.missing_skills %}
+                            <span class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 small">{{ s }}</span>
+                        {% endfor %}
+                    </div>
+                    <h6 class="fw-bold mb-2 small text-primary">Missing Technologies:</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        {% for t in analysis.missing_tech %}
+                            <li>{{ t }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Formatting & Grammar Issues -->
+            <div class="col-md-6">
+                <div class="card glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-patch-exclamation-fill"></i> Grammar & Tone Issues</h5>
+                    <ul class="small text-muted ps-3 mb-0">
+                        {% for g in analysis.grammar_issues %}
+                            <li class="mb-2">{{ g }}</li>
+                        {% empty %}
+                            <li>No critical grammatical issues detected!</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Improvements & Recommendations -->
+        <div class="card glass-card p-4 mb-4">
+            <h5 class="fw-bold mb-3 text-success"><i class="bi bi-check-all"></i> Resume Improvements</h5>
+            <ol class="small text-muted ps-3 mb-0">
+                {% for imp in analysis.improvements %}
+                    <li class="mb-2">{{ imp }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+
+        <!-- Projects & Certifications Suggestions -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-shield-check"></i> Recommended Certifications</h5>
+                    <ul class="small text-muted ps-3 mb-0">
+                        {% for c in analysis.certifications %}
+                            <li class="mb-2">{{ c }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-info"><i class="bi bi-journal-code"></i> Recommended Projects & Resources</h5>
+                    <h6 class="fw-bold mb-2 small text-primary-emphasis">Projects:</h6>
+                    <ul class="small text-muted ps-3 mb-3">
+                        {% for p in analysis.projects %}
+                            <li class="mb-1">{{ p }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h6 class="fw-bold mb-2 small text-primary-emphasis">Learning Resources:</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        {% for r in analysis.resources %}
+                            <li class="mb-1">{{ r }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

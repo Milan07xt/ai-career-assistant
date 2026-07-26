@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Career AI{% endblock %}
+
+{% block page_title %}Professional Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Welcome Header Card -->
+    <div class="col-100">
+        <div class="card glass-card p-4 text-white gradient-card-1 border-0 shadow">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="fw-bold mb-2">Welcome back, {{ user.first_name|default:user.username }}! 👋</h2>
+                    <p class="mb-0 opacity-90">Let's accelerate your career. You have <strong>{{ total_applications }}</strong> job application(s) active and <strong>{{ upcoming_interviews }}</strong> interview session(s) scheduled.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'resume_analyzer:upload' %}" class="btn btn-light text-primary fw-medium px-4 py-2 shadow-sm"><i class="bi bi-cloud-arrow-up-fill me-2"></i> Upload Resume</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Counter Grid -->
+<div class="row g-4 mb-4">
+    <!-- ATS Score Grid Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card glass-card p-3 h-100 text-center">
+            <h6 class="text-muted small fw-medium mb-3">ATS Resume Score</h6>
+            <div class="ats-score-badge mb-2">
+                <svg width="100" height="100" class="progress-ring">
+                    <circle class="progress-ring__circle" stroke="var(--border-color)" stroke-width="8" fill="transparent" r="42" cx="50" cy="50"/>
+                    <circle class="progress-ring__circle" stroke="#10b981" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="{{ ats_dashoffset }}" fill="transparent" r="42" cx="50" cy="50"/>
+                </svg>
+                <div class="ats-score-text fs-4">{{ ats_score }}</div>
+            </div>
+            {% if latest_resume %}
+                <span class="small text-muted text-truncate px-2">{{ latest_resume.file.name|slice:"17:" }}</span>
+            {% else %}
+                <span class="small text-warning">No Resume Uploaded</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Active Applications Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card glass-card p-3 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="text-muted small fw-medium mb-1">Total Applications</h6>
+                <h2 class="fw-bold mb-1">{{ total_applications }}</h2>
+                <div class="small text-muted">
+                    <span class="text-info"><i class="bi bi-eye"></i> {{ apps_reviewing }} in review</span>
+                </div>
+            </div>
+            <a href="{% url 'jobs:tracker' %}" class="small text-primary text-decoration-none mt-3">View Application Tracker <i class="bi bi-chevron-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Interview Averages Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card glass-card p-3 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="text-muted small fw-medium mb-1">Mock Interviews</h6>
+                <h2 class="fw-bold mb-1">{{ total_interviews }}</h2>
+                <div class="small text-muted">
+                    <span class="text-success"><i class="bi bi-award"></i> {{ avg_interview_score }}/10 Avg Grade</span>
+                </div>
+            </div>
+            <a href="{% url 'interview_ai:start' %}" class="small text-primary text-decoration-none mt-3">Practice Interviews <i class="bi bi-chevron-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Profile Completion Card -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card glass-card p-3 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="text-muted small fw-medium mb-1">Profile Completeness</h6>
+                <h2 class="fw-bold mb-1">{{ completion_meter }}%</h2>
+                <div class="progress mt-2" style="height: 6px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion_meter }}%;" aria-valuenow="{{ completion_meter }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <a href="{% url 'accounts:profile' %}" class="small text-primary text-decoration-none mt-3">Edit Profile Settings <i class="bi bi-chevron-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Charts Column -->
+    <div class="col-lg-8">
+        <div class="card glass-card p-4 mb-4">
+            <h5 class="fw-bold mb-4">Activity Performance & Analytics</h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="dashboardChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Recommended Jobs -->
+        <div class="card glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0">Recommended Jobs for You</h5>
+                <a href="{% url 'jobs:list' %}" class="small text-primary text-decoration-none">Search all <i class="bi bi-arrow-right"></i></a>
+            </div>
+            
+            {% if recommended_jobs %}
+                <div class="list-group list-group-flush bg-transparent">
+                    {% for job in recommended_jobs %}
+                        <div class="list-group-item bg-transparent px-0 py-3 border-light-subtle d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ job.title }}</h6>
+                                <p class="text-muted small mb-0">{{ job.company_name }} &bull; {{ job.location }}</p>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge bg-success-subtle text-success border border-success">{{ job.match_score }}% Match</span>
+                                <a href="{% url 'jobs:detail' pk=job.id %}" class="btn btn-sm btn-outline-primary px-3">Apply</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4 text-muted small">
+                    <p class="mb-2">No recommended jobs found.</p>
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-secondary">Add Skills to Profile</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar Column (AI Advice + Activity feed) -->
+    <div class="col-lg-4">
+        <!-- AI Advice Box -->
+        <div class="card glass-card p-4 mb-4 gradient-card-3 border-0 text-white shadow">
+            <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill"></i> AI Suggestions</h5>
+            <ul class="list-unstyled small mb-0">
+                {% for suggestion in ai_suggestions %}
+                    <li class="mb-3 d-flex align-items-start">
+                        <i class="bi bi-chevron-right me-2 mt-1"></i>
+                        <span>{{ suggestion }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <!-- Recent Activity Feed -->
+        <div class="card glass-card p-4">
+            <h5 class="fw-bold mb-4">Recent Activities</h5>
+            {% if activities %}
+                <div class="activity-timeline">
+                    {% for act in activities %}
+                        <div class="activity-item">
+                            <div class="activity-icon border-{{ act.color }}">
+                                <i class="bi bi-{{ act.icon }} text-{{ act.color }} small"></i>
+                            </div>
+                            <h6 class="mb-1 small fw-semibold text-primary-emphasis">{{ act.text }}</h6>
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ act.time|date:"M d, H:i" }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted py-4 small">No activities logged yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+        const textColor = isDark ? '#94a3b8' : '#64748b';
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [
+                    {
+                        label: 'ATS Profile Match %',
+                        data: [50, 65, 75, {{ ats_score|default:70 }}],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Avg Interview Grade x10',
+                        data: [40, 50, 65, {% widthratio avg_interview_score 1 10 %}],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: textColor
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: gridColor },
+                        ticks: { color: textColor }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: gridColor },
+                        ticks: { color: textColor }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

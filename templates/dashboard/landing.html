@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome | AI Career Assistant{% endblock %}
+
+{% block page_title %}Career AI Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5">
+        <div class="col-lg-6 mb-5 mb-lg-0 animate-fade-in">
+            <h1 class="display-3 fw-bold mb-3">
+                Elevate Your Career with <span class="gradient-text">Advanced AI</span>
+            </h1>
+            <p class="lead text-muted mb-4">
+                Analyze your resume for ATS score, practice mock coding & behavioral interviews, upload PDF guides to chat with context, and secure jobs matching your skills.
+            </p>
+            <div class="d-flex gap-3">
+                <a href="{% url 'accounts:register' %}" class="btn btn-lg btn-primary-custom">Get Started Free</a>
+                <a href="#features" class="btn btn-lg btn-outline-secondary">Learn More</a>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center animate-fade-in">
+            <div class="glass-card p-4 d-inline-block shadow-lg border border-primary-subtle" style="max-width: 500px;">
+                <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-2">
+                    <span class="fw-bold">ATS Score Checker</span>
+                    <span class="badge bg-success">Premium AI</span>
+                </div>
+                <div class="d-flex justify-content-center align-items-center py-3">
+                    <div class="ats-score-badge">
+                        <svg width="150" height="150" class="progress-ring">
+                            <circle class="progress-ring__circle" stroke="#e2e8f0" stroke-width="12" fill="transparent" r="60" cx="75" cy="75"/>
+                            <circle class="progress-ring__circle" stroke="#10b981" stroke-width="12" stroke-dasharray="377" stroke-dashoffset="56" fill="transparent" r="60" cx="75" cy="75"/>
+                        </svg>
+                        <div class="ats-score-text">85%</div>
+                    </div>
+                </div>
+                <div class="text-start mt-3">
+                    <h6 class="fw-bold mb-2">Analysis Result Summary:</h6>
+                    <ul class="small text-muted list-unstyled">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Strong Technical keywords match (Django, SQL)</li>
+                        <li><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Missing: AWS, Docker containers</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Formatting & structure score is high</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5 border-secondary-subtle" id="features">
+
+    <!-- Features Section -->
+    <div class="py-5">
+        <h2 class="text-center fw-bold mb-5">Powerful features for your success</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 glass-card p-4 text-center">
+                    <div class="fs-1 text-primary mb-3"><i class="bi bi-file-earmark-bar-graph"></i></div>
+                    <h4 class="fw-bold">AI Resume Analyzer</h4>
+                    <p class="text-muted small">Upload your resume to extract text and analyze your scores for ATS readiness, missing skills, and certifications.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 glass-card p-4 text-center">
+                    <div class="fs-1 text-success mb-3"><i class="bi bi-chat-dots-fill"></i></div>
+                    <h4 class="fw-bold">AI Document Chat</h4>
+                    <p class="text-muted small">Upload study materials, documents, or job specs and have a Q&A conversation referencing specific source pages.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 glass-card p-4 text-center">
+                    <div class="fs-1 text-warning mb-3"><i class="bi bi-mic"></i></div>
+                    <h4 class="fw-bold">Interview AI Assistant</h4>
+                    <p class="text-muted small">Practice mock technical, coding, or behavioral interviews. Get scored and receive instant constructive critiques.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="bg-dark text-white rounded-4 p-5 my-5 shadow-lg">
+        <h2 class="text-center fw-bold mb-5">How It Works</h2>
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="fs-3 fw-bold text-indigo-400 mb-2">01</div>
+                <h5>Upload Profile & Resume</h5>
+                <p class="small text-secondary">Sign up and upload your profile details or resume file to help the AI map your background.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="fs-3 fw-bold text-indigo-400 mb-2">02</div>
+                <h5>Optimize & Practice</h5>
+                <p class="small text-secondary">Enhance your resume based on suggestions and prepare with mock role-specific questions.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="fs-3 fw-bold text-indigo-400 mb-2">03</div>
+                <h5>Apply with Match Score</h5>
+                <p class="small text-secondary">Find matching openings on the jobs portal with computed Jaccard compatibility scores.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Section -->
+    <div class="py-5" id="pricing">
+        <h2 class="text-center fw-bold mb-5">Simple, Transparent Pricing</h2>
+        <div class="row justify-content-center g-4">
+            <div class="col-md-5 col-lg-4">
+                <div class="card h-100 glass-card p-4 border border-secondary-subtle">
+                    <h4 class="fw-bold">Starter Plan</h4>
+                    <div class="my-3">
+                        <span class="display-5 fw-bold">$0</span> <span class="text-muted">/month</span>
+                    </div>
+                    <p class="text-muted small">Great for basic resume checks and test chats.</p>
+                    <hr>
+                    <ul class="list-unstyled small text-muted mb-4">
+                        <li><i class="bi bi-check2 text-success me-2"></i> 3 Resume checks per month</li>
+                        <li><i class="bi bi-check2 text-success me-2"></i> 2 Document chat sessions</li>
+                        <li><i class="bi bi-check2 text-success me-2"></i> Standard Interview AI sessions</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-secondary w-100">Sign Up Free</a>
+                </div>
+            </div>
+            <div class="col-md-5 col-lg-4">
+                <div class="card h-100 glass-card p-4 border-primary border-2 position-relative shadow">
+                    <span class="badge bg-primary position-absolute top-0 end-0 m-3">Recommended</span>
+                    <h4 class="fw-bold text-primary">Pro Career Plan</h4>
+                    <div class="my-3">
+                        <span class="display-5 fw-bold">$19</span> <span class="text-muted">/month</span>
+                    </div>
+                    <p class="text-muted small">Complete suite for active job seekers.</p>
+                    <hr>
+                    <ul class="list-unstyled small text-muted mb-4">
+                        <li><i class="bi bi-check2 text-success me-2"></i> Unlimited Resume checking</li>
+                        <li><i class="bi bi-check2 text-success me-2"></i> Unlimited Document uploads</li>
+                        <li><i class="bi bi-check2 text-success me-2"></i> Priority AI Interview evaluation</li>
+                        <li><i class="bi bi-check2 text-success me-2"></i> Cover Letter DOCX/PDF export</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary-custom w-100">Join Pro Plan Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="py-5">
+        <h2 class="text-center fw-bold mb-5">Success Stories</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <p class="text-muted small italic">"The Resume Analyzer was a game-changer! It pointed out grammatical issues and missing skills that I updated. I got three times more callbacks on LinkedIn."</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold;">JD</div>
+                        <div class="ms-3">
+                            <h6 class="m-0 fw-bold">Jane Doe</h6>
+                            <small class="text-muted">Fullstack Developer at TechCorp</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <p class="text-muted small italic">"I practiced Python and SQL interviews using the Interview Assistant before my final rounds. The AI evaluations helped me answer structural questions with confidence."</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold;">MS</div>
+                        <div class="ms-3">
+                            <h6 class="m-0 fw-bold">Milan Singh</h6>
+                            <small class="text-muted">Junior Data Scientist</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="py-5 col-lg-8 mx-auto">
+        <h2 class="text-center fw-bold mb-5">Frequently Asked Questions</h2>
+        <div class="accordion accordion-flush glass-card p-3" id="faqAccordion">
+            <div class="accordion-item bg-transparent">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-transparent collapsed fw-semibold text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#faqOne">
+                        How accurate is the ATS Resume analyzer?
+                    </button>
+                </h2>
+                <div id="faqOne" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted small">
+                        Our analyzer extracts formatting and computes technical matches against standard ATS databases. It checks keywords using state-of-the-art LLMs (Gemini/OpenAI) to match typical hiring filters.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item bg-transparent">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-transparent collapsed fw-semibold text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwo">
+                        Does the document chat keep my data private?
+                    </button>
+                </h2>
+                <div id="faqTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted small">
+                        Yes. Documents are parsed and indexed locally in a private vector database. The text is only used contextually during your query session and is never sold or shared.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="mt-5 py-4 border-top border-secondary-subtle">
+    <div class="row align-items-center justify-content-between text-muted small">
+        <div class="col-md-6 mb-2 mb-md-0">
+            &copy; 2026 AI Career Assistant. Built with Python, Django & Gemini AI.
+        </div>
+        <div class="col-md-6 text-md-end gap-3 d-flex justify-content-md-end">
+            <a href="#" class="text-muted text-decoration-none">Terms</a>
+            <a href="#" class="text-muted text-decoration-none">Privacy</a>
+            <a href="mailto:support@aicareer.com" class="text-muted text-decoration-none">Contact Support</a>
+        </div>
+    </div>
+</footer>
+{% endblock %}

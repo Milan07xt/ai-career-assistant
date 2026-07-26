@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cover Letter | Career AI{% endblock %}
+
+{% block page_title %}Tailored Cover Letter{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+        <div class="card glass-card p-4 shadow-lg mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <div>
+                    <h5 class="fw-bold m-0">Cover Letter for {{ cl.company_name }}</h5>
+                    <small class="text-muted">Generated on {{ cl.created_at|date:"M d, Y" }}</small>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'resume_analyzer:cover_letter_docx' cl_id=cl.id %}" class="btn btn-sm btn-outline-primary px-3">
+                        <i class="bi bi-file-earmark-word-fill me-1 text-primary"></i> Download DOCX
+                    </a>
+                    <a href="{% url 'resume_analyzer:cover_letter_txt' cl_id=cl.id %}" class="btn btn-sm btn-outline-secondary px-3">
+                        <i class="bi bi-file-earmark-text-fill me-1"></i> Download TXT
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content view -->
+            <div class="p-4 rounded border border-light-subtle bg-light text-dark font-monospace" style="white-space: pre-line; line-height: 1.6; font-size: 0.9rem;">
+                {{ cl.content }}
+            </div>
+            
+            <hr class="my-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'resume_analyzer:cover_letter_new' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Create Another</a>
+                <a href="{% url 'dashboard:home' %}" class="btn btn-sm btn-primary-custom">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
